@@ -14,6 +14,8 @@ TILE_SCALING = 0.5
 
 # Movement speed of player, in pixels per frame
 PLAYER_MOVEMENT_SPEED = 5
+GRAVITY = 1
+PLAYER_JUMP_SPEED = 20
 
 
 class MyGame(arcade.Window):
@@ -75,8 +77,8 @@ class MyGame(arcade.Window):
             self.scene.add_sprite("Walls", wall)
 
         # Create the 'physics engine'
-        self.physics_engine = arcade.PhysicsEngineSimple(
-            self.player_sprite, self.scene.get_sprite_list("Walls")
+        self.physics_engine = arcade.PhysicsEnginePlatformer(
+            self.player_sprite, gravity_constant=GRAVITY, walls=self.scene["Walls"]
         )
 
     def on_draw(self):
@@ -92,7 +94,8 @@ class MyGame(arcade.Window):
         """Called whenever a key is pressed."""
 
         if key == arcade.key.UP or key == arcade.key.W:
-            self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
+            if self.physics_engine.can_jump():
+                self.player_sprite.change_y = PLAYER_JUMP_SPEED
         elif key == arcade.key.DOWN or key == arcade.key.S:
             self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.LEFT or key == arcade.key.A:
