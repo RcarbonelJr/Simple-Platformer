@@ -12,6 +12,7 @@ SCREEN_TITLE = "Simple Platformer"
 CHARACTER_SCALING = 1
 TILE_SCALING = 0.5
 COIN_SCALING = 0.5
+GEM_SCALING = 0.5
 
 # Movement speed of player, in pixels per frame
 PLAYER_MOVEMENT_SPEED = 5
@@ -43,6 +44,7 @@ class MyGame(arcade.Window):
         
         # Load sounds
         self.collect_coin_sound = arcade.load_sound(":resources:sounds/coin1.wav")
+        self.collect_gem_sound = arcade.load_sound(":resources:sounds/coin2.wav")
         self.jump_sound = arcade.load_sound(":resources:sounds/jump1.wav")
 
         arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
@@ -77,7 +79,7 @@ class MyGame(arcade.Window):
 
         # Put some crates on the ground
         # This shows using a coordinate list to place sprites
-        coordinate_list = [[512, 96], [256, 96], [768, 96]]
+        coordinate_list = [[512, 96], [256, 96], [768, 96], [643, 288]]
 
         for coordinate in coordinate_list:
             # Add a crate on the ground
@@ -93,6 +95,12 @@ class MyGame(arcade.Window):
             coin.center_x = x
             coin.center_y = 96
             self.scene.add_sprite("Coins", coin)
+
+        # Place a gem on the raised crate
+        gem = arcade.Sprite(":resources:images/items/gemBlue.png", GEM_SCALING)
+        gem.center_x = 643
+        gem.center_y = 352
+        self.scene.add_sprite("Gems", gem)
 
         # Create the 'physics engine'
         self.physics_engine = arcade.PhysicsEnginePlatformer(
@@ -163,6 +171,16 @@ class MyGame(arcade.Window):
             coin.remove_from_sprite_lists()
             # Play a sound
             arcade.play_sound(self.collect_coin_sound)
+
+        # See if we hit any gems
+        gem_hit_list = arcade.check_for_collision_with_list(
+            self.player_sprite, self.scene["Gems"]
+        )
+
+        # Loop through each gem we hit (if any) and remove it
+        for gem in gem_hit_list:
+            gem.remove_from_sprite_lists()
+            arcade.play_sound(self.collect_gem_sound)
 
         # Position the camera
         self.center_camera_to_player()
