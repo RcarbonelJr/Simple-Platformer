@@ -47,6 +47,12 @@ class MyGame(arcade.Window):
         self.collect_gem_sound = arcade.load_sound(":resources:sounds/coin2.wav")
         self.jump_sound = arcade.load_sound(":resources:sounds/jump1.wav")
 
+        # A camera that can be used to draw GUI elements
+        self.gui_camera = None
+
+        # Keep track of the score
+        self.score = 0
+
         arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
 
     def setup(self):
@@ -107,6 +113,12 @@ class MyGame(arcade.Window):
             self.player_sprite, gravity_constant=GRAVITY, walls=self.scene["Walls"]
         )
 
+        # Set up the GUI Camera
+        self.gui_camera = arcade.Camera(self.width, self.height)
+
+        # Keep track of the score
+        self.score = 0
+
     def on_draw(self):
         """Render the screen."""
 
@@ -118,6 +130,19 @@ class MyGame(arcade.Window):
         
         # Draw our scene
         self.scene.draw()
+
+        # Activate the GUI Camera before drawing GUI elemenets
+        self.gui_camera.use()
+
+        # Draw our score on the screen, scrolling it when the viewport
+        score_text = f"Score: {self.score}"
+        arcade.draw_text(
+            score_text,
+            10,
+            10,
+            arcade.csscolor.WHITE,
+            28
+        )
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
@@ -171,6 +196,8 @@ class MyGame(arcade.Window):
             coin.remove_from_sprite_lists()
             # Play a sound
             arcade.play_sound(self.collect_coin_sound)
+            # Add one to the score
+            self.score += 1
 
         # See if we hit any gems
         gem_hit_list = arcade.check_for_collision_with_list(
@@ -179,8 +206,12 @@ class MyGame(arcade.Window):
 
         # Loop through each gem we hit (if any) and remove it
         for gem in gem_hit_list:
+            # Remove the gem
             gem.remove_from_sprite_lists()
+            # Play a sound
             arcade.play_sound(self.collect_gem_sound)
+            # Add 5 to the score
+            self.score +=5
 
         # Position the camera
         self.center_camera_to_player()
